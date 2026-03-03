@@ -1,48 +1,26 @@
+# UnNetHack Android Build Instructions
 
-Build instructions
+This project has been updated to be compatible with Android Studio Panda (and newer) and Android 15/16.
 
+## Prerequisites
 
-These instructions are written for a 64-bit Ubuntu installation.
-Modifying them for other linux distributionos should be little to no
-work. If you're running Windows you're on your own.
+- **Android Studio**: Panda or newer.
+- **Android SDK & NDK**: Install these via the Android Studio SDK Manager (Settings > Languages & Frameworks > Android SDK > SDK Tools).
+- **Native Tools**: While the build is managed by Gradle, the project still relies on some generated headers from the core UnNetHack source.
 
+## Building the App
 
+1. **Open the Project**: Open the `sys/android` folder in Android Studio.
+2. **Gradle Sync**: Allow the project to sync. It will automatically detect the NDK and configure the native build via `jni/Android.mk`.
+3. **Run Setup**:
+   - If you are on Windows and don't have `make` or `sh`, I have added a helper task to the build script.
+   - Run the task via the terminal in Android Studio: `./gradlew copyNativeFiles` (or use the Gradle tool window: `Tasks > other > copyNativeFiles`).
+4. **Build & Run**: Click the **Run** button (green arrow) in Android Studio.
 
-=== Preparations ===
-
- - Install the Android SDK
-     http://developer.android.com/sdk
- 
- - Download and extract the Android NDK
-     http://developer.android.com/sdk/ndk
-      
- - Install 'bison' and 'flex'
- 
- - Check out the source
-     git clone https://github.com/gurrhack/ForkFront-Android.git
-     git clone https://github.com/gurrhack/UnNetHack-Android.git
-
-
-
-=== Building UnNetHack ===
-
-1. cd <UnNetHack-Android>/sys/android
-2. Open Makefile.src and change NDK to the appropriate path
-3. sh ./setup.sh
-4. cd ../..
-5. make install
-
-
-
-
-=== Building the app ===
-
-1. Start IntelliJ
-2. Create an empty project in the parent directory
-3. Add a new empty Java module to the project root
-4. Import the ForkFront module located at <ForkFront-Android>/forkfront.iml
-5. Import the UnNetHack module located at <UnNetHack-Android>/sys/android/UnNetHack.iml
-6. Build and Run!
-
+## Note on "makedefs"
+NetHack requires several files to be generated (e.g., `onames.h`, `pm.h`, `vis_tab.c`).
+The legacy process used `make install` to create these. If your build fails with "file not found" errors for these headers:
+- Ideally, run `make` once in the root directory.
+- If `make` is unavailable, you may need to find a way to run the `util/makedefs` utility once to generate these headers.
 
 Happy hacking!

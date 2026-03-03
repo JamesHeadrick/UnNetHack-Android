@@ -80,3 +80,4 @@ out
 /sys/android/libs
 /sys/android/assets/unnethackdir
 /sys/android/gen
+/sys/android/build

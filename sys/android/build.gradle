@@ -1,42 +1,100 @@
 buildscript {
   repositories {
     google()
-    jcenter()
+    mavenCentral()
   }
-
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.4.0'
-  }
-}
-
-allprojects {
-  repositories {
-    google()
-    jcenter()
+    classpath 'com.android.tools.build:gradle:8.13.2'
   }
 }
 
 apply plugin: 'com.android.application'
 
 android {
+  namespace 'com.tbd.UnNetHack'
+  compileSdk 35
 
-  compileSdkVersion 28
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
+  defaultConfig {
+    applicationId "com.tbd.UnNetHack"
+    minSdk 21
+    targetSdk 35
+    versionCode 5200
+    versionName "5.2.0"
   }
 
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
+      java.srcDirs = ['src']
       res.srcDirs = ['res']
       assets.srcDirs = ['assets']
       jniLibs.srcDirs = ['libs']
     }
   }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  externalNativeBuild {
+    ndkBuild {
+      path "jni/Android.mk"
+    }
+  }
 }
 
 dependencies {
-  implementation 'com.tbd.forkfront:ForkFront-Android'
+  implementation 'androidx.appcompat:appcompat:1.7.0'
+  implementation 'com.google.android.material:material:1.12.0'
+  implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+}
+
+tasks.register('copyNativeFiles') {
+    group = "setup"
+    doLast {
+        def rootDir = projectDir.parentFile.parentFile
+        copy {
+            from rootDir
+            include "sys/android/Makefile.top", "sys/android/Makefile.dat", "sys/android/Makefile.doc", "sys/android/Makefile.src", "sys/android/Makefile.utl"
+            into rootDir
+            rename 'Makefile.top', 'Makefile'
+        }
+        copy { from "${rootDir}/sys/android/Makefile.dat"; into "${rootDir}/dat"; rename 'Makefile.dat', 'Makefile' }
+        copy { from "${rootDir}/sys/android/Makefile.doc"; into "${rootDir}/doc"; rename 'Makefile.doc', 'Makefile' }
+        copy { from "${rootDir}/sys/android/Makefile.src"; into "${rootDir}/src"; rename 'Makefile.src', 'Makefile' }
+        copy { from "${rootDir}/sys/android/Makefile.utl"; into "${rootDir}/util"; rename 'Makefile.utl', 'Makefile' }
+    }
+}
+
+tasks.register('updateAssets') {
+    group = "setup"
+    doLast {
+        def rootDir = projectDir.parentFile.parentFile
+        def assetsDir = file("assets")
+        
+        // 1. Copy generated game data
+        copy {
+            from file("${rootDir}/dat")
+            include "data", "rumors", "oracles", "quest.dat", "dungeon.pdf"
+            include "*.lev"
+            include "*.ttf"
+            into assetsDir
+        }
+        
+        // 2. Copy the default config file - CRITICAL for startup
+        copy {
+            from projectDir
+            include "defaults.unh"
+            into assetsDir
+        }
+        
+        // 3. Create a version file if it doesn't exist (used by some loaders)
+        def verFile = new File(assetsDir, "ver")
+        if (!verFile.exists()) {
+            verFile.text = "5.2.0"
+        }
+
+        println "Assets updated. Ensure defaults.unh is present in: ${assetsDir.absolutePath}"
+    }
 }

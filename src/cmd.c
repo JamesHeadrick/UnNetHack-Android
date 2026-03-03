@@ -2894,7 +2894,7 @@ find_remembered_stairs(boolean upstairs, coord *cc)
 
 static int not_interactive=0;
 int
-do_stair_travel(char up_or_down)
+do_stair_travel(CHAR_P up_or_down)
 {
     boolean upstairs = (up_or_down == '<');
     coord cc;

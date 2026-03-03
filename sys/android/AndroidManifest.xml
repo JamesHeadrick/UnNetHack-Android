@@ -5,10 +5,10 @@
 	android:versionCode="5200"
 	android:versionName="5.2.0"
 	android:installLocation="auto">
-	<uses-sdk android:minSdkVersion="7"
-	          android:targetSdkVersion="15"/>
+
 	<uses-permission
-		android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+		android:maxSdkVersion="18" />
 	<uses-permission android:name="android.permission.INTERNET"/>
 
 	<application
@@ -16,15 +16,15 @@
 		android:icon="@drawable/icon"
 		android:largeHeap="true"
 		android:hardwareAccelerated="true"
-		android:theme="@android:style/Theme"
+		android:theme="@android:style/Theme.DeviceDefault"
 		android:allowBackup="true">
 		<activity
 			android:name="com.tbd.forkfront.ForkFront"
 			android:label="UnNetHack"
+			android:exported="true"
 			android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
 			android:launchMode="singleTask"
 			android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|fontScale">
-			<!-- Prevent activity from restarting when configuration changes -->
 			<intent-filter>
 				<action
 					android:name="android.intent.action.MAIN"/>
@@ -34,7 +34,8 @@
 		</activity>
 		<activity
 			android:name="com.tbd.forkfront.Settings"
+			android:exported="false"
 			android:label="UnNetHack Settings">
 		</activity>
 	</application>
-</manifest> 
+</manifest>

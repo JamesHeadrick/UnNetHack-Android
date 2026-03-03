@@ -37,6 +37,7 @@ void FDECL(and_raw_print_bold, (const char *));
 int NDECL(and_nhgetch);
 int FDECL(and_nh_poskey, (int *, int *, int *));
 void NDECL(and_nhbell);
+void NDECL(and_you_die);
 int NDECL(and_doprev_message);
 char FDECL(and_yn_function, (const char *, const char *, CHAR_P));
 void FDECL(and_getlin, (const char *,char *));

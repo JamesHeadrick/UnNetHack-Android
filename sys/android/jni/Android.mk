@@ -1,9 +1,14 @@
 LOCAL_PATH := $(call my-dir)
-ROOT_PATH := $(LOCAL_PATH)/../../..
+# Path to the root of UnNetHack relative to this file
+ROOT_PATH := ../../..
 
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := unnethack
+
+# All paths are relative to LOCAL_PATH (which is this jni directory)
+# We exclude generated files (tile.c, monstr.c, vis_tab.c) from this list
+# and add them conditionally below.
 LOCAL_SRC_FILES := \
     $(ROOT_PATH)/src/allmain.c \
     $(ROOT_PATH)/src/alloc.c \
@@ -116,8 +121,10 @@ LOCAL_SRC_FILES := \
     $(ROOT_PATH)/src/dump.c \
     $(ROOT_PATH)/src/tutorial.c \
     $(ROOT_PATH)/src/livelog.c \
+    $(ROOT_PATH)/src/unicode.c \
     $(ROOT_PATH)/sys/share/ioctl.c \
     $(ROOT_PATH)/sys/share/unixtty.c \
+    $(ROOT_PATH)/sys/share/nhlan.c \
     $(ROOT_PATH)/sys/android/androidmain.c \
     $(ROOT_PATH)/sys/android/androidunix.c \
     $(ROOT_PATH)/sys/android/winandroid.c \
@@ -126,11 +133,32 @@ LOCAL_SRC_FILES := \
     $(ROOT_PATH)/win/tty/topl.c \
     $(ROOT_PATH)/win/tty/wintty.c
 
-LOCAL_C_INCLUDES := \
-    $(ROOT_PATH)/include \
-    $(ROOT_PATH)/src
+# Add generated files only if they exist.
+# These are normally created by util/makedefs.
+ifneq ($(wildcard $(LOCAL_PATH)/$(ROOT_PATH)/src/tile.c),)
+    LOCAL_SRC_FILES += $(ROOT_PATH)/src/tile.c
+    LOCAL_CFLAGS += -DUSE_TILES
+endif
 
-LOCAL_CFLAGS := -DANDROID -fsigned-char -O2 -Wno-format
+ifneq ($(wildcard $(LOCAL_PATH)/$(ROOT_PATH)/src/monstr.c),)
+    LOCAL_SRC_FILES += $(ROOT_PATH)/src/monstr.c
+endif
+
+ifneq ($(wildcard $(LOCAL_PATH)/$(ROOT_PATH)/src/vis_tab.c),)
+    LOCAL_SRC_FILES += $(ROOT_PATH)/src/vis_tab.c
+endif
+
+LOCAL_C_INCLUDES := \
+    $(LOCAL_PATH)/$(ROOT_PATH)/include \
+    $(LOCAL_PATH)/$(ROOT_PATH)/src \
+    $(LOCAL_PATH)/$(ROOT_PATH)/sys/android
+
+LOCAL_CFLAGS += -DANDROID -fsigned-char -O2 -Wno-format \
+                -std=gnu89 \
+                -Wno-error=implicit-function-declaration \
+                -Wno-implicit-function-declaration \
+                -Wno-deprecated-non-prototype
+
 LOCAL_LDLIBS := -llog -lz
 
 include $(BUILD_SHARED_LIBRARY)

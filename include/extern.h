@@ -182,6 +182,7 @@ E int NDECL(doextlist);
 E int NDECL(extcmd_via_menu);
 E void FDECL(enlightenment, (int,BOOLEAN_P));
 E void FDECL(show_conduct, (int,BOOLEAN_P));
+E int FDECL(do_stair_travel, (CHAR_P));
 E int FDECL(xytod, (SCHAR_P,SCHAR_P));
 E void FDECL(dtoxy, (coord *,int));
 E int FDECL(movecmd, (CHAR_P));
@@ -1578,6 +1579,8 @@ E const char *FDECL(mimic_obj_name, (struct monst *));
 
 E boolean FDECL(match_optname, (const char *,const char *,int,BOOLEAN_P));
 E void NDECL(initoptions);
+E boolean FDECL(parse_color_definition, (const char *));
+E boolean FDECL(parse_status_color_options, (char *));
 E void FDECL(parseoptions, (char *,BOOLEAN_P,BOOLEAN_P));
 E boolean FDECL(parse_monster_color, (char *));
 E boolean FDECL(parse_symbol, (const char *));
@@ -2683,6 +2686,10 @@ E int FDECL(check_tutorial_oclass, (int));
 /* ### unicode.c ### */
 E glyph_t FDECL(get_unicode_codepoint, (int));
 E int FDECL(pututf8char, (glyph_t));
+
+#ifdef ANDROID
+E void FDECL(and_getlin_log, (const char *, char *));
+#endif
 
 #undef E
 
