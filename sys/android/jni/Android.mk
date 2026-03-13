@@ -4,7 +4,7 @@ ROOT_PATH := ../../..
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := unnethack
+LOCAL_MODULE := nethack
 
 # All paths are relative to LOCAL_PATH (which is this jni directory)
 # We exclude generated files (tile.c, monstr.c, vis_tab.c) from this list
@@ -160,5 +160,9 @@ LOCAL_CFLAGS += -DANDROID -fsigned-char -O2 -Wno-format \
                 -Wno-deprecated-non-prototype
 
 LOCAL_LDLIBS := -llog -lz
+
+# Align LOAD segments to 16 KB so the .so is compatible with 16 KB page-size
+# devices (required for new/updated apps on Google Play targeting Android 15+).
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 
 include $(BUILD_SHARED_LIBRARY)

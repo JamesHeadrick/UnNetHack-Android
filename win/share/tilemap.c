@@ -37,8 +37,7 @@ struct conditionals {
 #endif
 	/* commented out in monst.c at present */
 	{ MON_GLYPH, PM_SHOCKING_SPHERE, "beholder" },
-	{ MON_GLYPH, PM_BABY_SILVER_DRAGON, "baby shimmering dragon" },
-	{ MON_GLYPH, PM_SILVER_DRAGON, "shimmering dragon" },
+	/* PM_BABY_SILVER_DRAGON / PM_SILVER_DRAGON removed from this fork (replaced by glowing dragons) */
 #ifndef KOPS
 	{ MON_GLYPH, PM_VORPAL_JABBERWOCK, "Keystone Kop" },
 	{ MON_GLYPH, PM_VORPAL_JABBERWOCK, "Kop Sergeant" },
@@ -77,9 +76,7 @@ struct conditionals {
 #ifndef KOPS
 	{ OBJ_GLYPH, CLUB, "rubber hose" },
 #endif
-	/* objects commented out in objects.c at present */
-	{ OBJ_GLYPH, SILVER_DRAGON_SCALE_MAIL, "shimmering dragon scale mail" },
-	{ OBJ_GLYPH, SILVER_DRAGON_SCALES, "shimmering dragon scales" },
+	/* SILVER_DRAGON_SCALE_MAIL / SILVER_DRAGON_SCALES removed from this fork */
 #ifndef TOURIST
 	{ OBJ_GLYPH, LEATHER_JACKET, "Hawaiian shirt" },
 	{ OBJ_GLYPH, LEATHER_JACKET, "T-shirt" },

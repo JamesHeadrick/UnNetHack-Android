@@ -317,12 +317,9 @@ typedef unsigned char	uchar;
 #  include <stdint.h>
 # endif
 #endif
-#ifdef UINT32_MAX
-typedef uint32_t glyph_t;
-#else
-/* Fallback that should work on most systems */
-typedef long glyph_t;
-#endif
+
+typedef unsigned int glyph_t;
+
 
 /*
  * Various structures have the option of using bitfields to save space.

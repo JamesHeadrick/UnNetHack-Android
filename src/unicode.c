@@ -181,7 +181,7 @@ static glyph_t dec_graphics_to_unicode[] = {
 
 /** Returns unicode codepoint of character according to selected graphics mode. */
 glyph_t
-get_unicode_codepoint(int ch)
+get_unicode_codepoint(glyph_t ch)
 {
 	if (ch <= 0xFF) {
 		if (ch < 0x80) {

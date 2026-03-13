@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.tbd.UnNetHack"
+	package="com.tbd.forkfront"
 	android:versionCode="5200"
 	android:versionName="5.2.0"
 	android:installLocation="auto">
@@ -10,18 +10,20 @@
 		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
 		android:maxSdkVersion="18" />
 	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
 	<application
 		android:label="UnNetHack"
 		android:icon="@drawable/icon"
 		android:largeHeap="true"
 		android:hardwareAccelerated="true"
-		android:theme="@android:style/Theme.DeviceDefault"
+		android:theme="@style/AppTheme"
 		android:allowBackup="true">
 		<activity
 			android:name="com.tbd.forkfront.ForkFront"
 			android:label="UnNetHack"
 			android:exported="true"
+			android:theme="@style/AppTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
 			android:launchMode="singleTask"
 			android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|fontScale">
@@ -35,7 +37,8 @@
 		<activity
 			android:name="com.tbd.forkfront.Settings"
 			android:exported="false"
-			android:label="UnNetHack Settings">
+			android:label="UnNetHack Settings"
+			android:theme="@style/SettingsTheme">
 		</activity>
 	</application>
 </manifest>

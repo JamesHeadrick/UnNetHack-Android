@@ -2,12 +2,14 @@
 <resources>
     <string-array name="tileNames">
     	<item>Ascii (no tiles)</item>
-        <item>Unchozo</item>
-        <item>UnDawnHack</item>
-        <item>Geoduck</item>
+        <item>UnAbsurd 64x64</item>
+        <item>UnChozo 32x32</item>
+        <item>UnDawnHack 32x32</item>
+        <item>UnGeoduck 12x20</item>
     </string-array>
     <string-array name="tileValues">
         <item>TTY</item>
+        <item>unabsurd64_64</item>
         <item>unchozo_32</item>
         <item>undawnhack_32</item>
         <item>ungeoduck_12x20</item>

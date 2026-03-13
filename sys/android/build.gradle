@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-  namespace 'com.tbd.UnNetHack'
+  namespace 'com.tbd.forkfront'
   compileSdk 35
 
   defaultConfig {
@@ -48,6 +48,7 @@ dependencies {
   implementation 'androidx.appcompat:appcompat:1.7.0'
   implementation 'com.google.android.material:material:1.12.0'
   implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+  implementation 'cz.msebera.android:httpclient:4.5.8'
 }
 
 tasks.register('copyNativeFiles') {
@@ -71,30 +72,40 @@ tasks.register('updateAssets') {
     group = "setup"
     doLast {
         def rootDir = projectDir.parentFile.parentFile
-        def assetsDir = file("assets")
+        def assetsDir = file("assets/nethack")
+        if (!assetsDir.exists()) assetsDir.mkdirs()
         
+        def datDir = file("${rootDir}/dat")
+        if (!datDir.exists()) {
+            throw new GradleException("Source data directory not found at: ${datDir.absolutePath}. Did you run setup.sh?")
+        }
+
         // 1. Copy generated game data
         copy {
-            from file("${rootDir}/dat")
-            include "data", "rumors", "oracles", "quest.dat", "dungeon.pdf"
+            from datDir
+            include "data", "rumors", "oracles", "quest.dat", "dungeon", "help", "hh", "cmdhelp", "history", "opthelp", "wizhelp", "license"
             include "*.lev"
-            include "*.ttf"
             into assetsDir
         }
         
-        // 2. Copy the default config file - CRITICAL for startup
+        // 2. Copy the default config file
         copy {
             from projectDir
             include "defaults.unh"
             into assetsDir
         }
         
-        // 3. Create a version file if it doesn't exist (used by some loaders)
-        def verFile = new File(assetsDir, "ver")
+        // 3. Create a version file in root assets
+        def verFile = new File(file("assets"), "ver")
         if (!verFile.exists()) {
             verFile.text = "5.2.0"
         }
 
-        println "Assets updated. Ensure defaults.unh is present in: ${assetsDir.absolutePath}"
+        def dungeonFile = new File(assetsDir, "dungeon")
+        if (!dungeonFile.exists()) {
+            println "WARNING: 'dungeon' file not found in assets. The game will fail to start. Ensure you have built the NetHack data files in the 'dat' directory."
+        } else {
+            println "Assets updated successfully in: ${assetsDir.absolutePath}"
+        }
     }
 }

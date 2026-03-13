@@ -2684,7 +2684,7 @@ E int FDECL(check_tutorial_location, (int, int, BOOLEAN_P));
 E int FDECL(check_tutorial_oclass, (int));
 
 /* ### unicode.c ### */
-E glyph_t FDECL(get_unicode_codepoint, (int));
+E glyph_t FDECL(get_unicode_codepoint, (glyph_t));
 E int FDECL(pututf8char, (glyph_t));
 
 #ifdef ANDROID

@@ -136,9 +136,9 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #endif
 
 #include "extern.h"
-#ifdef ANDROID
-#include "winandroid.h"
-#endif
+// #ifdef ANDROID
+// #include "winandroid.h"
+// #endif
 #include "winprocs.h"
 
 #ifdef USE_TRAMPOLI

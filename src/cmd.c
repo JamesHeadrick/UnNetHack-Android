@@ -2675,7 +2675,9 @@ click_to_cmd(x, y, mod)
             if (IS_DOOR(levl[u.ux+x][u.uy+y].typ)) {
                 /* slight assistance to the player: choose kick/open for them */
                 if (levl[u.ux+x][u.uy+y].doormask & D_LOCKED) {
-                    cmd[0] = C('d');
+                    /* Use 'o' (open) so it goes through doopen_indir -> autokick()
+                     * which prompts "Kick it open?" rather than kicking immediately. */
+                    cmd[0] = 'o';
                     return cmd;
                 }
                 if (levl[u.ux+x][u.uy+y].doormask & D_CLOSED) {

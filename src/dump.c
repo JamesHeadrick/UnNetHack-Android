@@ -19,6 +19,7 @@
 
 #ifdef ANDROID
 #  include <sys/stat.h>
+extern char android_dumplog_dir[];
 #endif
 extern char msgs[][BUFSZ];
 extern int lastmsg;
@@ -101,7 +102,15 @@ dump_init()
     	return;
 
 #ifdef ANDROID
-	mkdir_p(new_dump_fn);
+    if (android_dumplog_dir[0] && new_dump_fn[0] != '/') {
+        size_t dir_len = strlen(android_dumplog_dir);
+        size_t name_len = strlen(new_dump_fn);
+        char *full_fn = (char *) alloc(dir_len + 1 + name_len + 5 + 1);
+        Sprintf(full_fn, "%s/%s", android_dumplog_dir, new_dump_fn);
+        free(new_dump_fn);
+        new_dump_fn = full_fn;
+    }
+    mkdir_p(new_dump_fn);
 #endif
 
 if(dump_format&DUMP_FORMAT_TEXT) {

@@ -160,6 +160,7 @@ do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, rtype, special, is_room)
 
 	croom->nsubrooms = 0;
 	croom->sbrooms[0] = (struct mkroom *) 0;
+	croom->needjoining = TRUE;
 	if (!special) {
 	    for(x = lowx-1; x <= hix+1; x++)
 		for(y = lowy-1; y <= hiy+1; y += (hiy-lowy+2)) {

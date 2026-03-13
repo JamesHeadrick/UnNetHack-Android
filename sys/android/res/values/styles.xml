@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="android:windowActionBarOverlay">false</item>
+    </style>
+
+    <style name="SettingsTheme" parent="AppTheme">
+        <!-- Edge-to-edge opt-out for API 35+ is in values-v35/styles.xml -->
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+
+    <style name="NH_Dialog" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="android:background">#F0333333</item>
+        <item name="android:padding">8dp</item>
+	</style>
+
+    <style name="WindowText" parent="TextAppearance.AppCompat.Medium">
+		<item name="android:typeface">monospace</item>
+		<item name="android:textSize">11sp</item>
+		<item name="android:textColor">#ffffffff</item>
+    </style>
+    <style name="DialogTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+		<item name="android:typeface">sans</item>
+		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">#ffffffff</item>
+    </style>
+    <style name="DialogText" parent="TextAppearance.AppCompat.Body1">
+		<item name="android:typeface">sans</item>
+		<item name="android:textSize">16sp</item>
+		<item name="android:textColor">#ffffffff</item>
+    </style>    
+    <style name="ButtonText" parent="TextAppearance.AppCompat.Widget.Button">
+		<item name="android:ellipsize">end</item>
+		<item name="android:lines">1</item>
+		<item name="android:scrollHorizontally">true</item> 
+	</style>
+    <style name="InputText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:padding">4dip</item>
+    </style>
+	<style name="dPadBtn" parent="Widget.AppCompat.Button">
+		<item name="android:typeface">monospace</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:ellipsize">none</item>
+		<item name="android:layout_width">50dip</item>
+		<item name="android:layout_height">50dip</item>
+		<item name="android:gravity">center</item>
+	</style>
+    <style name="ListText1" parent="TextAppearance.AppCompat.Medium">
+		<item name="android:typeface">sans</item>
+		<item name="android:textSize">16sp</item>
+		<item name="android:textColor">#ffffffff</item>
+    </style>
+    <style name="ListText2" parent="TextAppearance.AppCompat.Small">
+		<item name="android:typeface">sans</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:ellipsize">end</item>
+		<item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+		<item name="android:textColor">#ffffffff</item>
+    </style>    
+
+</resources>

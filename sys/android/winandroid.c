@@ -1,6 +1,7 @@
 #include <string.h>
 #include <errno.h>
 #include <jni.h>
+#include <stdint.h>
 
 #include "hack.h"
 #include "winandroid.h"
@@ -11,6 +12,8 @@ extern short glyph2tile[];
 
 extern int UnNetHackMain(int argc, char** argv);
 extern int isprint(int c);
+
+int nhcolor_to_RGB(int c);
 
 struct window_procs and_procs = {
 	"and",
@@ -100,6 +103,9 @@ static jmethodID jShowLog;
 static jmethodID jSetUsername;
 static jmethodID jSetNumPadOption;
 static jmethodID jAskName;
+static jmethodID jGetDumplogDir;
+
+char android_dumplog_dir[BUFSIZ] = "";
 
 static boolean quit_if_possible;
 
@@ -124,9 +130,9 @@ void destroy_jobject(jstring jstr)
 	(*jEnv)->DeleteLocalRef(jEnv, jstr);
 }
 
-#define JNICallV(func, ...) (*jEnv)->CallVoidMethod(jEnv, jAppInstance, func, ## __VA_ARGS__);
-#define JNICallI(func, ...) (*jEnv)->CallIntMethod(jEnv, jAppInstance, func, ## __VA_ARGS__);
-#define JNICallO(func, ...) (*jEnv)->CallObjectMethod(jEnv, jAppInstance, func, ## __VA_ARGS__);
+#define JNICallV(func, ...) (*jEnv)->CallVoidMethod(jEnv, jAppInstance, func, ## __VA_ARGS__)
+#define JNICallI(func, ...) (*jEnv)->CallIntMethod(jEnv, jAppInstance, func, ## __VA_ARGS__)
+#define JNICallO(func, ...) (*jEnv)->CallObjectMethod(jEnv, jAppInstance, func, ## __VA_ARGS__)
 
 //____________________________________________________________________________________
 void Java_com_tbd_forkfront_NetHackIO_RunNetHack(JNIEnv* env, jobject thiz, jstring path)
@@ -153,9 +159,9 @@ void Java_com_tbd_forkfront_NetHackIO_RunNetHack(JNIEnv* env, jobject thiz, jstr
 	jYNFunction = (*jEnv)->GetMethodID(jEnv, jApp, "ynFunction", "([B[BI)V");
 	jGetLine = (*jEnv)->GetMethodID(jEnv, jApp, "getLine", "([BIII)Ljava/lang/String;");
 	jStartMenu = (*jEnv)->GetMethodID(jEnv, jApp, "startMenu", "(I)V");
-	jAddMenu = (*jEnv)->GetMethodID(jEnv, jApp, "addMenu", "(IIIIII[BII)V");
+	jAddMenu = (*jEnv)->GetMethodID(jEnv, jApp, "addMenu", "(IIJIII[BII)V");
 	jEndMenu = (*jEnv)->GetMethodID(jEnv, jApp, "endMenu", "(I[B)V");
-	jSelectMenu = (*jEnv)->GetMethodID(jEnv, jApp, "selectMenu", "(III)[I");
+	jSelectMenu = (*jEnv)->GetMethodID(jEnv, jApp, "selectMenu", "(III)[J");
 	jCliparound = (*jEnv)->GetMethodID(jEnv, jApp, "cliparound", "(IIII)V");
 	jDelayOutput = (*jEnv)->GetMethodID(jEnv, jApp, "delayOutput", "()V");
 	jShowDPad = (*jEnv)->GetMethodID(jEnv, jApp, "askDirection", "()V");
@@ -163,8 +169,9 @@ void Java_com_tbd_forkfront_NetHackIO_RunNetHack(JNIEnv* env, jobject thiz, jstr
 	jSetUsername = (*jEnv)->GetMethodID(jEnv, jApp, "setUsername", "([B)V");
 	jSetNumPadOption = (*jEnv)->GetMethodID(jEnv, jApp, "setNumPadOption", "(I)V");
 	jAskName = (*jEnv)->GetMethodID(jEnv, jApp, "askName", "(I[Ljava/lang/String;)Ljava/lang/String;");
+	jGetDumplogDir = (*jEnv)->GetMethodID(jEnv, jApp, "getDumplogDir", "()Ljava/lang/String;");
 
-	if(!(jReceiveKey && jReceivePosKey && jCreateWindow && jClearWindow && jDisplayWindow &&
+	if(!(jDebugLog && jReceiveKey && jReceivePosKey && jCreateWindow && jClearWindow && jDisplayWindow &&
 			jDestroyWindow && jPutString && jRawPrint && jSetCursorPos && jPrintTile &&
 			jYNFunction && jGetLine && jStartMenu && jAddMenu && jEndMenu && jSelectMenu &&
 			jCliparound && jDelayOutput && jShowDPad && jShowLog && jSetUsername &&
@@ -178,6 +185,18 @@ void Java_com_tbd_forkfront_NetHackIO_RunNetHack(JNIEnv* env, jobject thiz, jstr
 	if(chdir(pChars) != 0)
 		debuglog("chdir failed %d", errno);
 	(*jEnv)->ReleaseStringUTFChars(jEnv, path, pChars);
+
+	android_dumplog_dir[0] = '\0';
+	if (jGetDumplogDir) {
+		jstring jDumpDir = (jstring)JNICallO(jGetDumplogDir);
+		if (jDumpDir) {
+			const char *dumpDirChars = (*jEnv)->GetStringUTFChars(jEnv, jDumpDir, 0);
+			strncpy(android_dumplog_dir, dumpDirChars, BUFSIZ-1);
+			android_dumplog_dir[BUFSIZ-1] = '\0';
+			(*jEnv)->ReleaseStringUTFChars(jEnv, jDumpDir, dumpDirChars);
+			(*jEnv)->DeleteLocalRef(jEnv, jDumpDir);
+		}
+	}
 
 	params[0] = "unnethack";
 	params[1] = 0;
@@ -854,7 +873,7 @@ void and_add_menu(winid wid, int glyph, int cnt, const ANY_P *ident, CHAR_P acce
 	}
 
 	jbyteArray jstr = create_bytearray(str);
-	JNICallV(jAddMenu, wid, tile, ident->a_int, (int)accelerator, (int)groupacc, 1<<attr, jstr, (int)preselected, color);
+	JNICallV(jAddMenu, wid, tile, (jlong)(uintptr_t)ident->a_void, (int)accelerator, (int)groupacc, 1<<attr, jstr, (int)preselected, color);
 	destroy_jobject(jstr);
 }
 
@@ -910,13 +929,13 @@ int and_select_menu(winid wid, int how, MENU_ITEM_P **selected)
 int and_select_menu_r(winid wid, int how, MENU_ITEM_P **selected, int reentry)
 {
 	int i, n;
-	jintArray a;
-	jint* p;
-	jint* q;
+	jlongArray a;
+	jlong* p;
+	jlong* q;
 
 	//debuglog("and_select_menu");
 
-	a = (jintArray)JNICallO(jSelectMenu, wid, how, reentry);
+	a = (jlongArray)JNICallO(jSelectMenu, wid, how, reentry);
 
 	*selected = 0;
 
@@ -930,14 +949,14 @@ int and_select_menu_r(winid wid, int how, MENU_ITEM_P **selected, int reentry)
 	{
 		n >>= 1;
 
-		q = p = (*jEnv)->GetIntArrayElements(jEnv, a, 0);
+		q = p = (*jEnv)->GetLongArrayElements(jEnv, a, 0);
 		*selected = (MENU_ITEM_P*)malloc(sizeof(MENU_ITEM_P) * n);
 		for(i = 0; i < n; i++)
 		{
-			(*selected)[i].item.a_int = *p++;
-			(*selected)[i].count = *p++;
+			(*selected)[i].item.a_void = (genericptr_t)(uintptr_t)*p++;
+			(*selected)[i].count = (int)*p++;
 		}
-		(*jEnv)->ReleaseIntArrayElements(jEnv, a, q, 0);
+		(*jEnv)->ReleaseLongArrayElements(jEnv, a, q, 0);
 	}
 	else if(n == 1)
 	{
@@ -1062,21 +1081,23 @@ int nhcolor_to_RGB(int c)
 		return 0xFF000000; /* black */
 	}
 }
-
 void and_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph)
 {
+    int tile = (glyph == NO_GLYPH) ? -1 : glyph2tile[glyph];
+
+    glyph_t ch = 0;
+    int col = 0;
+    unsigned int special = 0;
+
+    mapglyph(glyph, &ch, &col, &special, x, y);
+
+    glyph_t uni = get_unicode_codepoint(ch);
+	//debuglog("DEBUG: glyph=%d, tile_index=%d, uni_codepoint=%lld", glyph, tile, (long long)uni);
+
+    /* The casts here are still good practice to ensure JNI alignment */
+    JNICallV(jPrintTile, (int)wid, (int)x, (int)y, (int)tile, (int)uni, (int)nhcolor_to_RGB(col), (int)special);
 //	debuglog("and_print_glyph wid=%d %dx%d", wid, x, y);
-	int tile;
-	if(glyph == NO_GLYPH)
-		tile = -1;
-	else
-		tile = glyph2tile[glyph];
-	glyph_t ch;
-	int col;
-	unsigned int special;
-	mapglyph(glyph, &ch, &col, &special, x, y);
-	int uni = get_unicode_codepoint(ch);
-	JNICallV(jPrintTile, wid, x, y, tile, uni, nhcolor_to_RGB(col), special);
+
 }
 
 //____________________________________________________________________________________
@@ -1811,4 +1832,3 @@ void and_preference_update(const char *pref)
 //	debuglog("and_preference_update %s", pref);
 	//genl_preference_update(pref);
 }
-

@@ -91,10 +91,7 @@ int glyph;
 
 /*ARGSUSED*/
 void
-mapglyph(glyph, ochar, ocolor, ospecial, x, y)
-int glyph, *ocolor, x, y;
-glyph_t *ochar;
-unsigned *ospecial;
+mapglyph(int glyph, glyph_t *ochar, int *ocolor, unsigned int *ospecial, int x, int y)
 {
 	register int offset;
 #if defined(TEXTCOLOR) || defined(ROGUE_COLOR)
