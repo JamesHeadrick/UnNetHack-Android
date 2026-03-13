@@ -14,6 +14,16 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <!-- Full-screen transparent Dialog theme used by NH_GetLine.
+         Inherits the app's dark theme so all existing widget styles (InputText,
+         ButtonText, etc.) look correct.  windowIsFloating=false makes it fill
+         the screen; windowBackground=transparent lets the game show through. -->
+    <style name="GetLineDialog" parent="AppTheme.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
     <style name="NH_Dialog" parent="Theme.AppCompat.DayNight.Dialog">
         <item name="android:background">#F0333333</item>
         <item name="android:padding">8dp</item>

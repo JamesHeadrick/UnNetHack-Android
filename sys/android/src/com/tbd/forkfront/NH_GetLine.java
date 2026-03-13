@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Set;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -53,7 +56,7 @@ public class NH_GetLine
 		mHistory = loadHistory();
 		mUI = new UI(context, true, true, false, getInitText());
 	}
-	
+
 	// ____________________________________________________________________________________
 	public void showWhoAreYou(Activity context, final int nMaxChars, List<String> history)
 	{
@@ -110,7 +113,7 @@ public class NH_GetLine
 			return KeyEventResult.IGNORED;
 		return mUI.handleKeyDown(ch, nhKey, keyCode, modifiers, repeatCount, bSoftInput);
 	}
-	
+
 	// ____________________________________________________________________________________
 	private void storeHistory(List<String> history, String newString)
 	{
@@ -157,8 +160,7 @@ public class NH_GetLine
 		private EditText mInput;
 		private ListView mHistoryList;
 		private CheckBox mWizardCheck;
-		//private NH_Dialog mDialog;
-		private View mRoot;
+		private Dialog mDialog;
 		private ArrayAdapter<String> mAdapter;
 		public boolean mSaveHistory;
 		public boolean mShowWizard;
@@ -167,12 +169,27 @@ public class NH_GetLine
 		public UI(Activity context, boolean saveHistory, boolean showKeyboard, boolean showWizard, String initText)
 		{
 			mContext = context;
-			
+
 			mSaveHistory = saveHistory;
 			mShowWizard = showWizard;
 
-			mRoot = Util.inflate(context, R.layout.dialog_getline, R.id.dlg_frame);
-			mInput = (EditText)mRoot.findViewById(R.id.input);
+			// Use a Dialog so the IME gets a fresh window context, completely decoupled
+			// from the game activity window's accumulated soft-input state.  This
+			// eliminates the dead-zone on the left portion of the keyboard that appears
+			// when the game window's IME metrics have been altered by prior
+			// adjustResize/adjustPan cycles during gameplay.
+			mDialog = new Dialog(context, R.style.GetLineDialog);
+			mDialog.setCancelable(false);
+			mDialog.setContentView(R.layout.dialog_getline);
+
+			// Give the dialog window a clean soft-input mode.  STATE_VISIBLE causes the
+			// keyboard to appear automatically when the EditText receives focus, so no
+			// explicit showSoftInput call is needed.
+			mDialog.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE |
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+			mInput = (EditText)mDialog.findViewById(R.id.input);
 			mInput.setFilters(new InputFilter[]{ new InputFilter.LengthFilter(mMaxChars) });
 			mInput.setOnKeyListener(new OnKeyListener()
 			{
@@ -186,13 +203,13 @@ public class NH_GetLine
 						ok();
 					else if(keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE)
 						cancel();
-					else if(keyCode == KeyEvent.KEYCODE_SEARCH) // This is doing weird stuff, might as well block it 
+					else if(keyCode == KeyEvent.KEYCODE_SEARCH) // This is doing weird stuff, might as well block it
 						return true;
 					return false;
 				}
 			});
 			mInput.addTextChangedListener(new TextWatcher() {
-				
+
 				@Override
 				public void onTextChanged(CharSequence s, int start, int before, int count) {
 					if(mShowWizard) {
@@ -212,9 +229,9 @@ public class NH_GetLine
 				public void afterTextChanged(Editable s) { }
 			});
 
-			((TextView)mRoot.findViewById(R.id.title)).setText(mTitle);
+			((TextView)mDialog.findViewById(R.id.title)).setText(mTitle);
 
-			mRoot.findViewById(R.id.history).setOnClickListener(new OnClickListener()
+			mDialog.findViewById(R.id.history).setOnClickListener(new OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
@@ -225,15 +242,15 @@ public class NH_GetLine
 					}
 				}
 			});
-			
-			mHistoryList = (ListView)mRoot.findViewById(R.id.history_list);
-			
-			mWizardCheck = (CheckBox)mRoot.findViewById(R.id.wizard);
+
+			mHistoryList = (ListView)mDialog.findViewById(R.id.history_list);
+
+			mWizardCheck = (CheckBox)mDialog.findViewById(R.id.wizard);
 			mWizardCheck.setVisibility(showWizard ? View.VISIBLE : View.GONE);
-			
+
 			mAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, mHistory);
 			mHistoryList.setAdapter(mAdapter);
-			
+
 			mHistoryList.setVisibility(View.GONE);
 
 			mHistoryList.setOnItemClickListener(new OnItemClickListener()
@@ -256,8 +273,8 @@ public class NH_GetLine
 					return false;
 				}
 			});
-			
-			mRoot.findViewById(R.id.btn_0).setOnClickListener(new OnClickListener()
+
+			mDialog.findViewById(R.id.btn_0).setOnClickListener(new OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
@@ -268,7 +285,7 @@ public class NH_GetLine
 					}
 				}
 			});
-			mRoot.findViewById(R.id.btn_1).setOnClickListener(new OnClickListener()
+			mDialog.findViewById(R.id.btn_1).setOnClickListener(new OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
@@ -277,14 +294,30 @@ public class NH_GetLine
 				}
 			});
 
+			// Handle Back at the Dialog level — the Dialog framework intercepts
+			// KEYCODE_BACK before it reaches the EditText's OnKeyListener.
+			mDialog.setOnKeyListener(new DialogInterface.OnKeyListener()
+			{
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event)
+				{
+					if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN)
+					{
+						cancel();
+						return true;
+					}
+					return false;
+				}
+			});
+
 			mState.hideControls();
+
+			mDialog.show();
+
 			mInput.requestFocus();
-			
+
 			mInput.setText(initText);
 			mInput.selectAll();
-			
-			if(showKeyboard)
-				Util.showKeyboard(context, mInput);
 		}
 
 		// ____________________________________________________________________________________
@@ -295,7 +328,7 @@ public class NH_GetLine
 		// ____________________________________________________________________________________
 		public KeyEventResult handleKeyDown(char ch, int nhKey, int keyCode, Set<Input.Modifier> modifiers, int repeatCount, boolean bSoftInput)
 		{
-			if(mRoot == null)
+			if(mDialog == null)
 				return KeyEventResult.IGNORED;
 
 			switch(keyCode)
@@ -342,11 +375,10 @@ public class NH_GetLine
 		public void dismiss()
 		{
 			Util.hideKeyboard(mContext, mInput);
-			if(mRoot != null)
+			if(mDialog != null)
 			{
-				mRoot.setVisibility(View.GONE);
-				((ViewGroup)mRoot.getParent()).removeView(mRoot);
-				mRoot = null;
+				mDialog.dismiss();
+				mDialog = null;
 				mState.showControls();
 			}
 			mUI = null;
@@ -355,7 +387,7 @@ public class NH_GetLine
 		// ____________________________________________________________________________________
 		private void ok()
 		{
-			if(mRoot != null)
+			if(mDialog != null)
 			{
 				String text = mInput.getText().toString();
 				String app = "";
@@ -371,7 +403,7 @@ public class NH_GetLine
 		// ____________________________________________________________________________________
 		private void cancel()
 		{
-			if(mRoot != null)
+			if(mDialog != null)
 			{
 				mIO.sendLineCmd("\033 ");
 				dismiss();

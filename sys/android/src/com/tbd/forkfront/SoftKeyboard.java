@@ -160,7 +160,7 @@ public class SoftKeyboard implements OnKeyboardActionListener
 		break;
 
 		case KEYCODE_ESC:
-			mState.handleKeyDown('\033', '\033', KeyEvent.KEYCODE_ESCAPE, Input.modifiers(), 0, true);
+			handleClose();
 		break;
 
 		case Keyboard.KEYCODE_DELETE:
