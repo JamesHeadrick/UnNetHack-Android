@@ -51,8 +51,12 @@ doversion()
 int
 doextversion()
 {
+#ifdef ANDROID
+	return doversion();
+#else
 	display_file_area(NH_OPTIONS_USED_AREA, OPTIONS_USED, TRUE);
 	return 0;
+#endif
 }
 
 #ifdef MICRO
