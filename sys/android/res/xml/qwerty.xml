@@ -70,7 +70,7 @@
    		<Key android:codes="58" android:keyLabel=":"/>
         <Key android:codes="44" android:keyLabel=","/>
         <Key android:codes="-7" android:keyLabel="Ctrl" android:keyWidth="15%p"/>
-        <Key android:codes="10" android:keyIcon="@drawable/sym_keyboard_return" android:keyWidth="15%p" android:keyEdgeFlags="right"/>
+        <Key android:codes="-8" android:keyLabel="ESC" android:keyWidth="15%p" android:keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
     
