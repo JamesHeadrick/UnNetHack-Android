@@ -1243,7 +1243,7 @@ public class NHW_Map implements NH_Window
 				break;
 
 				case SEND_DIR:
-					if(allowDirectionalInput())
+					if(allowDirectionalInput() || isDiggableAdjacentTile(tileX, tileY))
 					{
 						char dir = getDir(tileX, tileY, dx, dy, distFromSelfSquared);
 
@@ -1312,6 +1312,18 @@ public class NHW_Map implements NH_Window
 		}
 
 		// ____________________________________________________________________________________
+		private boolean isDiggableAdjacentTile(int tileX, int tileY)
+		{
+			int adx = Math.abs(tileX - mPlayerPos.x);
+			int ady = Math.abs(tileY - mPlayerPos.y);
+			if(adx > 1 || ady > 1) return false;
+			if(tileX < 0 || tileX >= TileCols || tileY < 0 || tileY >= TileRows) return false;
+			char c = mTiles[tileY][tileX].ch[0];
+			// Wall/stone chars per drawing.c defsyms: | (vwall), - (hwall/corners), space (stone)
+			return c == '|' || c == '-' || c == ' ';
+		}
+
+		// ____________________________________________________________________________________
 		private TouchResult getTouchResult(int tileX, int tileY, float distFromSelfSquared)
 		{
 			if(mNHState.isMouseLocked())
@@ -1322,6 +1334,10 @@ public class NHW_Map implements NH_Window
 
 			if(mPlayerPos.equals(tileX, tileY) || distFromSelfSquared < mSelfRadiusSquared)
 				return TouchResult.SEND_MY_POS;
+
+			// Always use directional input for immediately adjacent wall/stone tiles (autodig support)
+			if(isDiggableAdjacentTile(tileX, tileY))
+				return TouchResult.SEND_DIR;
 
 			Travel travelOption = getTravelOption();
 
