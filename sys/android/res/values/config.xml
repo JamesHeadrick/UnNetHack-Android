@@ -8,7 +8,7 @@
 	<string name="defaultCmdPanel">default_cmd_panel</string>
 	<bool name="useCP437Decoder">false</bool>
 	<bool name="hearseAvailable">true</bool>
-	<string name="hearseClientName">UnNetHack-Android</string>
+	<string name="hearseClientName">UnNetHack</string>
 	<string name="hearseNethackVersion">5.2.0</string>
 	<string name="hearseRoles">Arc|Bar|Cav|Con|Hea|Kni|Mon|Pri|Rog|Ran|Sam|Tou|Val|Wiz</string>
 	<bool name="hearseLittleEndian">true</bool>
