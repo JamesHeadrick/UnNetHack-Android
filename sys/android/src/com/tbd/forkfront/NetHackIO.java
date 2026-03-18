@@ -485,6 +485,20 @@ public class NetHackIO
 
 	// ____________________________________________________________________________________
 	@SuppressWarnings("unused")
+	private void setHasQuiver(final boolean hasQuiver)
+	{
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				mNhHandler.setHasQuiver(hasQuiver);
+			}
+		});
+	}
+
+	// ____________________________________________________________________________________
+	@SuppressWarnings("unused")
 	private void setHealthColor(final int color)
 	{
 		mHandler.post(new Runnable()

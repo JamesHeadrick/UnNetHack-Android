@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.*;
 import android.graphics.Paint.Align;
@@ -81,11 +83,17 @@ public class NHW_Map implements NH_Window
 		public int color;
 	}
 
+	private static final int MG_PET      = 0x08;
+	private static final int MG_PEACEFUL = 0x40;
+	private static final int MG_MON      = 0x80;
+
 	private enum TouchResult
 	{
 		SEND_POS,
 		SEND_MY_POS,
-		SEND_DIR
+		SEND_DIR,
+		SEND_FIRE,
+		SEND_FIRE_CONFIRM
 	}
 
 	private Activity mContext;
@@ -1258,6 +1266,31 @@ public class NHW_Map implements NH_Window
 						}
 					}
 				break;
+
+				case SEND_FIRE:
+				{
+					final char dir = getDir(tileX, tileY, dx, dy, distFromSelfSquared);
+					mNHState.sendKeyCmd('f');
+					mNHState.sendKeyCmd(dir);
+				}
+				break;
+
+				case SEND_FIRE_CONFIRM:
+				{
+					final char dir = getDir(tileX, tileY, dx, dy, distFromSelfSquared);
+					new AlertDialog.Builder(mContext)
+						.setMessage("Really fire at this monster?")
+						.setPositiveButton("Fire", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								mNHState.sendKeyCmd('f');
+								mNHState.sendKeyCmd(dir);
+							}
+						})
+						.setNegativeButton("Cancel", null)
+						.show();
+				}
+				break;
 			}
 			mIsViewPanned = false;
 		}
@@ -1302,6 +1335,13 @@ public class NHW_Map implements NH_Window
 		}
 
 		// ____________________________________________________________________________________
+		private boolean isTapToFireEnabled()
+		{
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+			return prefs.getBoolean("tapToFire", false);
+		}
+
+		// ____________________________________________________________________________________
 		private boolean allowDirectionalInput()
 		{
 			if(!mNHState.isDPadVisible())
@@ -1338,6 +1378,25 @@ public class NHW_Map implements NH_Window
 			// Always use directional input for immediately adjacent wall/stone tiles (autodig support)
 			if(isDiggableAdjacentTile(tileX, tileY))
 				return TouchResult.SEND_DIR;
+
+			// Tap-to-fire: if a visible monster is on an exact cardinal/diagonal line and player has a quiver
+			if(isTapToFireEnabled() && mNHState.hasQuiver())
+			{
+				int dtx = tileX - mPlayerPos.x;
+				int dty = tileY - mPlayerPos.y;
+				boolean onStraightLine = (dtx == 0 || dty == 0 || Math.abs(dtx) == Math.abs(dty));
+				if(onStraightLine && tileX >= 0 && tileX < TileCols && tileY >= 0 && tileY < TileRows)
+				{
+					int overlay = mTiles[tileY][tileX].overlay;
+					if((overlay & MG_MON) != 0)
+					{
+						if((overlay & (MG_PET | MG_PEACEFUL)) != 0)
+							return TouchResult.SEND_FIRE_CONFIRM;
+						else
+							return TouchResult.SEND_FIRE;
+					}
+				}
+			}
 
 			Travel travelOption = getTravelOption();
 

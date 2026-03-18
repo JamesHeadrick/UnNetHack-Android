@@ -242,6 +242,7 @@ mapglyph(int glyph, glyph_t *ochar, int *ocolor, unsigned int *ospecial, int x, 
 #endif
 	    pet_color(offset);
 	    special |= MG_PET;
+	    special |= MG_MON;
     } else {							/* a monster */
 	ch = get_monsym(glyph);
 #ifdef ROGUE_COLOR
@@ -262,6 +263,9 @@ mapglyph(int glyph, glyph_t *ochar, int *ocolor, unsigned int *ospecial, int x, 
 		color = HI_DOMESTIC;
 #endif
 	}
+	special |= MG_MON;
+	if (level.monsters[x][y] && level.monsters[x][y]->mpeaceful)
+	    special |= MG_PEACEFUL;
     }
 
 #ifdef TEXTCOLOR

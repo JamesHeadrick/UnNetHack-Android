@@ -67,6 +67,8 @@ enum hunger_state_types {
 #define MG_PET		0x08
 #define MG_RIDDEN	0x10
 #define MG_INVERSE	0x20 /* use inverse video */
+#define MG_PEACEFUL	0x40 /* peaceful (non-tame) monster */
+#define MG_MON		0x80 /* visible monster (hostile, peaceful, or pet) */
 
 /* sellobj_state() states */
 #define SELL_NORMAL	(0)

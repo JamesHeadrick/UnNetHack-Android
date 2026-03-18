@@ -104,6 +104,7 @@ static jmethodID jSetUsername;
 static jmethodID jSetNumPadOption;
 static jmethodID jAskName;
 static jmethodID jGetDumplogDir;
+static jmethodID jSetHasQuiver;
 
 char android_dumplog_dir[BUFSIZ] = "";
 
@@ -170,12 +171,13 @@ void Java_com_tbd_forkfront_NetHackIO_RunNetHack(JNIEnv* env, jobject thiz, jstr
 	jSetNumPadOption = (*jEnv)->GetMethodID(jEnv, jApp, "setNumPadOption", "(I)V");
 	jAskName = (*jEnv)->GetMethodID(jEnv, jApp, "askName", "(I[Ljava/lang/String;)Ljava/lang/String;");
 	jGetDumplogDir = (*jEnv)->GetMethodID(jEnv, jApp, "getDumplogDir", "()Ljava/lang/String;");
+	jSetHasQuiver = (*jEnv)->GetMethodID(jEnv, jApp, "setHasQuiver", "(Z)V");
 
 	if(!(jDebugLog && jReceiveKey && jReceivePosKey && jCreateWindow && jClearWindow && jDisplayWindow &&
 			jDestroyWindow && jPutString && jRawPrint && jSetCursorPos && jPrintTile &&
 			jYNFunction && jGetLine && jStartMenu && jAddMenu && jEndMenu && jSelectMenu &&
 			jCliparound && jDelayOutput && jShowDPad && jShowLog && jSetUsername &&
-			jSetNumPadOption && jAskName && jSetHealthColor && jRedrawStatus))
+			jSetNumPadOption && jAskName && jSetHealthColor && jRedrawStatus && jSetHasQuiver))
 	{
 		debuglog("baaaaad");
 		return;
@@ -980,7 +982,7 @@ int and_select_menu_r(winid wid, int how, MENU_ITEM_P **selected, int reentry)
 //		   leave the window up, otherwise empty.
 void and_update_inventory()
 {
-//	debuglog("and_update_inventory");
+	JNICallV(jSetHasQuiver, uquiver != (struct obj *)0 ? JNI_TRUE : JNI_FALSE);
 }
 
 //____________________________________________________________________________________

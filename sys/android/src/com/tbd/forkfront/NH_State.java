@@ -48,6 +48,7 @@ public class NH_State
 	private Hearse mHearse;
 	private SoftKeyboard.KEYBOARD mRegularKeyboard;
 	private SoundPlayer mSoundPlayer;
+	private boolean mHasQuiver;
 
 	// ____________________________________________________________________________________
 	public NH_State(Activity context, ByteDecoder decoder)
@@ -348,6 +349,12 @@ public class NH_State
 	}
 
 	// ____________________________________________________________________________________
+	public boolean hasQuiver()
+	{
+		return mHasQuiver;
+	}
+
+	// ____________________________________________________________________________________
 	public boolean isMouseLocked()
 	{
 		return mIsMouseLocked;
@@ -634,6 +641,13 @@ public class NH_State
 		public void playSound(String filename, int volume)
 		{
 			mSoundPlayer.play(filename, volume);
+		}
+
+		// ____________________________________________________________________________________
+		@Override
+		public void setHasQuiver(boolean hasQuiver)
+		{
+			mHasQuiver = hasQuiver;
 		}
 
 		// ____________________________________________________________________________________

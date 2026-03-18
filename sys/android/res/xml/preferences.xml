@@ -157,7 +157,14 @@
 				android:defaultValue="false"/>
 
 		</PreferenceScreen>
-		
+
+		<CheckBoxPreference
+			android:title="Tap to fire"
+			android:summary="Tap a monster on a straight line to automatically fire quivered ammunition at it. Prompts before firing at peaceful or tame monsters."
+			android:persistent="true"
+			android:key="tapToFire"
+			android:defaultValue="false"/>
+
 		<PreferenceScreen
 			android:title="Command panels"
 			android:summary="Configure layout and content of the command panels"
