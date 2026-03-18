@@ -1385,7 +1385,8 @@ public class NHW_Map implements NH_Window
 				int dtx = tileX - mPlayerPos.x;
 				int dty = tileY - mPlayerPos.y;
 				boolean onStraightLine = (dtx == 0 || dty == 0 || Math.abs(dtx) == Math.abs(dty));
-				if(onStraightLine && tileX >= 0 && tileX < TileCols && tileY >= 0 && tileY < TileRows)
+				boolean notAdjacent = Math.abs(dtx) > 1 || Math.abs(dty) > 1;
+				if(onStraightLine && notAdjacent && tileX >= 0 && tileX < TileCols && tileY >= 0 && tileY < TileRows)
 				{
 					int overlay = mTiles[tileY][tileX].overlay;
 					if((overlay & MG_MON) != 0)
