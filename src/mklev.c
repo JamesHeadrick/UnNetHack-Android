@@ -202,6 +202,7 @@ boolean special;
 	croom = &rooms[nroom];
 	do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit,
 					    rtype, special, (boolean) TRUE);
+	if (rtype == OROOM) croom->needfill = 1;
 	croom++;
 	croom->hx = -1;
 	nroom++;
